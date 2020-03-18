@@ -5,16 +5,21 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.app.AlertDialog;
-import android.app.Dialog;
+
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
+
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.Toast;
 
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.util.ArrayList;
 
@@ -30,6 +35,8 @@ public class MainActivity extends AppCompatActivity {
 
     private int CLICKS;
 
+    private String username;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,9 +46,14 @@ public class MainActivity extends AppCompatActivity {
 
         recyclerView = findViewById(R.id.recyclerView);
         layoutManager = new LinearLayoutManager(this);
-        adapter = new ShopItemAdapter(shopItemsList);
+        adapter = new ShopItemAdapter(shopItemsList, this);
 
         this.loadRecyclerView();
+
+        // Load credentials from file
+        username = loadCredentials();
+        if (username != null)
+            Toast.makeText(this, "Hello " + username, Toast.LENGTH_LONG).show();
 
         if (savedInstanceState != null) {
             this.CLICKS = savedInstanceState.getInt("clicks");
@@ -94,6 +106,29 @@ public class MainActivity extends AppCompatActivity {
         this.CLICKS += 1;
     }
 
+    private String loadCredentials() {
+        FileInputStream fis = null;
+
+        try {
+            fis = openFileInput(SignInDialog.FILE_NAME);
+            InputStreamReader isr = new InputStreamReader(fis);
+            BufferedReader br = new BufferedReader(isr);
+
+            return br.readLine();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (fis != null) {
+                try {
+                    fis.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return null;
+    }
+
     private ArrayList<ShopItem> getShopItems() {
         ArrayList<ShopItem> shopItemsList = new ArrayList<>();
 
@@ -113,7 +148,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void openUserCart() {
-        Log.i(TAG, "Total cart size: " + String.valueOf(ShopItemAdapter.getUserCartItems().size()));
+        Intent openCartActivity = new Intent(MainActivity.this, SharedPreferencesActivity.class);
+        openCartActivity.putExtra("CART_INFO", ShopItemAdapter.getUserCartItems());
+        startActivity(openCartActivity);
     }
 
     @Override

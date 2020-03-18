@@ -13,10 +13,18 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatDialogFragment;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
+
+import static android.content.Context.MODE_PRIVATE;
+
 public class SignInDialog extends AppCompatDialogFragment {
+
+    public static final String FILE_NAME = "credentials.txt";
 
     private EditText editTextUsername;
     private EditText editTextPassword;
+
 
     @NonNull
     @Override
@@ -32,7 +40,8 @@ public class SignInDialog extends AppCompatDialogFragment {
                         String username = editTextUsername.getText().toString();
                         String password = editTextPassword.getText().toString();
 
-                        Toast.makeText(getContext(), "Hello " + username, Toast.LENGTH_LONG).show();
+                        // Save to internal storage
+                        saveUsernameToFile(username);
                     }
                 })
                 .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -46,6 +55,27 @@ public class SignInDialog extends AppCompatDialogFragment {
         this.editTextPassword = view.findViewById(R.id.edit_password);
 
         return builder.create();
+    }
+
+    private void saveUsernameToFile(String username) {
+        FileOutputStream fos = null;
+
+        try {
+            fos = getContext().openFileOutput(FILE_NAME, MODE_PRIVATE);
+            fos.write(username.getBytes());
+            Toast.makeText(getContext(), "Username saved successfully!", Toast.LENGTH_LONG).show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            Toast.makeText(getContext(), "Saving username failed!", Toast.LENGTH_LONG).show();
+        } finally {
+            if (fos != null) {
+                try {
+                    fos.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 
 }
