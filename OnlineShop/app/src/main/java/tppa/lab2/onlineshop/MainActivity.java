@@ -79,9 +79,17 @@ public class MainActivity extends AppCompatActivity {
             case R.id.cart:
                 this.openUserCart();
                 return true;
+            case R.id.sensors:
+                this.openSensorsActivity();
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    private void openSensorsActivity() {
+        Intent intent = new Intent(MainActivity.this, SensorsActivity.class);
+        startActivity(intent);
     }
 
     private void loadRecyclerView() {
