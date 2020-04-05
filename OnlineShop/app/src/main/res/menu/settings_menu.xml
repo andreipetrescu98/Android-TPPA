@@ -20,6 +20,10 @@
                         <item android:id="@+id/sensors"
                             android:title="Sensors"
                             app:showAsAction="never"/>
+
+                        <item android:id="@+id/camera"
+                            android:title="Camera"
+                            app:showAsAction="never"/>
                 </menu>
 
         </item>
